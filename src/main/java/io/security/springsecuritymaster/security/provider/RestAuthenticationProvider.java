@@ -3,6 +3,7 @@ package io.security.springsecuritymaster.security.provider;
 import io.security.springsecuritymaster.domain.dto.AccountContext;
 import io.security.springsecuritymaster.security.details.FormAuthenticationDetails;
 import io.security.springsecuritymaster.security.exception.SecretException;
+import io.security.springsecuritymaster.security.token.RestAuthenticationToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -15,9 +16,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
-@Qualifier("authenticationProvider")
+@Qualifier("restAuthenticationProvider")
 @RequiredArgsConstructor
-public class FormAuthenticationProvider implements AuthenticationProvider {
+public class RestAuthenticationProvider implements AuthenticationProvider {
 
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
@@ -33,18 +34,15 @@ public class FormAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("Invalid password");
         }
 
-        String secretKey = ((FormAuthenticationDetails) authentication.getDetails()).getSecretKey();
-        if (secretKey == null || !secretKey.equals("secret")) {
-            throw new SecretException("Invalid secret");
-        }
-
-        return new UsernamePasswordAuthenticationToken(
-                accountContext.getAccountDto(), null, accountContext.getAuthorities()
+        return new RestAuthenticationToken(
+                accountContext.getAuthorities(),
+                accountContext.getAccountDto(),
+                null
         );
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return authentication.isAssignableFrom(UsernamePasswordAuthenticationToken.class);
+        return authentication.isAssignableFrom(RestAuthenticationToken.class);
     }
 }
