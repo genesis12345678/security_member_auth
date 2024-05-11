@@ -4,7 +4,6 @@ import io.security.springsecuritymaster.domain.dto.AccountContext;
 import io.security.springsecuritymaster.security.details.FormAuthenticationDetails;
 import io.security.springsecuritymaster.security.exception.SecretException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,8 +13,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-@Component
-@Qualifier("authenticationProvider")
+@Component("authenticationProvider")
 @RequiredArgsConstructor
 public class FormAuthenticationProvider implements AuthenticationProvider {
 

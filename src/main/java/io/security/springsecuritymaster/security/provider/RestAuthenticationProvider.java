@@ -1,22 +1,17 @@
 package io.security.springsecuritymaster.security.provider;
 
 import io.security.springsecuritymaster.domain.dto.AccountContext;
-import io.security.springsecuritymaster.security.details.FormAuthenticationDetails;
-import io.security.springsecuritymaster.security.exception.SecretException;
 import io.security.springsecuritymaster.security.token.RestAuthenticationToken;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-@Component
-@Qualifier("restAuthenticationProvider")
+@Component("restAuthenticationProvider")
 @RequiredArgsConstructor
 public class RestAuthenticationProvider implements AuthenticationProvider {
 
