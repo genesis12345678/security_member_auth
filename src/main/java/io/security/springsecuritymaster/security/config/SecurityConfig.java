@@ -1,5 +1,6 @@
 package io.security.springsecuritymaster.security.config;
 
+import io.security.springsecuritymaster.security.handler.FormAccessDeniedHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +37,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**", "/favicon.*", "/*/icon-*").permitAll() //정적 자원 관리
                         .requestMatchers("/", "/signup", "/login*").permitAll()
+                        .requestMatchers("/user").hasRole("USER")
+                        .requestMatchers("/manager").hasRole("MANAGER")
+                        .requestMatchers("/admin").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .formLogin(form -> form
                         .loginPage("/login").permitAll() //커스텀 로그인 페이지
@@ -44,6 +48,7 @@ public class SecurityConfig {
                         .failureHandler(authenticationFailureHandler)
                 )
                 .authenticationProvider(authenticationProvider)
+                .exceptionHandling(exception -> exception.accessDeniedHandler(new FormAccessDeniedHandler("/denied")))
         ;
 
         return http.build();

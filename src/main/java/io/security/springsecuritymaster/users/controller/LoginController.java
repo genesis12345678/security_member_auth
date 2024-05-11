@@ -1,8 +1,10 @@
 package io.security.springsecuritymaster.users.controller;
 
+import io.security.springsecuritymaster.domain.dto.AccountDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
@@ -35,5 +37,15 @@ public class LoginController {
         }
 
         return "redirect:/login";
+    }
+
+    @GetMapping("/denied")
+    public String accessDenied(@RequestParam(value = "exception", required = false) String exception,
+                               @AuthenticationPrincipal AccountDto accountDto,
+                               Model model) {
+        model.addAttribute("username", accountDto.getUsername());
+        model.addAttribute("exception", exception);
+
+        return "login/denied";
     }
 }
