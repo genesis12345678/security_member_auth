@@ -17,14 +17,17 @@ import org.springframework.security.web.util.matcher.RequestMatcherEntry;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class CustomDynamicAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
 
     private List<RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>>> mappings;
+    private DynamicAuthorizationService das;
     private static final AuthorizationDecision ACCESS = new AuthorizationDecision(true);
     private static final AuthorizationDecision DENY = new AuthorizationDecision(false);
 
@@ -33,26 +36,8 @@ public class CustomDynamicAuthorizationManager implements AuthorizationManager<R
 
     @PostConstruct
     public void mapping() {
-        DynamicAuthorizationService das = new DynamicAuthorizationService(new PersistentUrlRoleMapper(resourcesRepository));
-        mappings = das.getUrlRoleMappings()
-                      .entrySet()
-                      .stream()
-                      .map(entry -> new RequestMatcherEntry<>(
-                              new MvcRequestMatcher(handlerMappingIntrospector, entry.getKey()),
-                              customAuthorizationManager(entry.getValue())
-                      ))
-                      .toList();
-    }
-
-    private AuthorizationManager<RequestAuthorizationContext> customAuthorizationManager(String role) {
-        if (role != null) {
-            if (role.startsWith("ROLE")) {
-                return AuthorityAuthorizationManager.hasAuthority(role);
-            } else {
-                return new WebExpressionAuthorizationManager(role);
-            }
-        }
-        return null;
+        das = new DynamicAuthorizationService(new PersistentUrlRoleMapper(resourcesRepository));
+        setMapping();
     }
 
     /**
@@ -77,5 +62,29 @@ public class CustomDynamicAuthorizationManager implements AuthorizationManager<R
     @Override
     public void verify(Supplier<Authentication> authentication, RequestAuthorizationContext object) {
         AuthorizationManager.super.verify(authentication, object);
+    }
+
+    public synchronized void reload() {
+        this.mappings.clear();
+        setMapping();
+    }
+
+    private void setMapping() {
+        this.mappings = das.getUrlRoleMappings()
+                .entrySet()
+                .stream()
+                .map(entry -> new RequestMatcherEntry<>(
+                        new MvcRequestMatcher(handlerMappingIntrospector, entry.getKey()),
+                        customAuthorizationManager(entry.getValue())
+                ))
+                .collect(Collectors.toList());
+    }
+
+    private AuthorizationManager<RequestAuthorizationContext> customAuthorizationManager(String role) {
+        if (role.startsWith("ROLE")) {
+            return AuthorityAuthorizationManager.hasAuthority(role);
+        } else {
+            return new WebExpressionAuthorizationManager(role);
+        }
     }
 }
