@@ -6,27 +6,32 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class HomeController {
-	@GetMapping(value="/")
+	@GetMapping("/")
 	public String dashboard() {
 		return "/dashboard";
 	}
 
-	@GetMapping(value="/user")
+	@GetMapping("/user")
 	public String user() {
 		return "/user";
 	}
 
-	@GetMapping(value="/manager")
+	@GetMapping("/manager")
 	public String manager() {
 		return "/manager";
 	}
 
-	@GetMapping(value="/admin")
+	@GetMapping("/admin")
 	public String admin() {
 		return "/admin";
 	}
 
-	@GetMapping(value="/api")
+	@GetMapping("/db")
+	public String db() {
+		return "/db";
+	}
+
+	@GetMapping("/api")
 	public String restDashboard() {
 		return "rest/dashboard";
 	}

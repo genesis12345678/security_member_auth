@@ -1,10 +1,10 @@
 package io.security.springsecuritymaster.security.manager;
 
-import io.security.springsecuritymaster.security.mapper.MapBasedUrlRoleMapper;
+import io.security.springsecuritymaster.admin.repository.ResourcesRepository;
+import io.security.springsecuritymaster.security.mapper.PersistentUrlRoleMapper;
 import io.security.springsecuritymaster.security.service.DynamicAuthorizationService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.log.LogMessage;
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -25,12 +25,15 @@ import java.util.function.Supplier;
 public class CustomDynamicAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
 
     private List<RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>>> mappings;
+    private static final AuthorizationDecision ACCESS = new AuthorizationDecision(true);
     private static final AuthorizationDecision DENY = new AuthorizationDecision(false);
+
     private final HandlerMappingIntrospector handlerMappingIntrospector;
+    private final ResourcesRepository resourcesRepository;
 
     @PostConstruct
     public void mapping() {
-        DynamicAuthorizationService das = new DynamicAuthorizationService(new MapBasedUrlRoleMapper());
+        DynamicAuthorizationService das = new DynamicAuthorizationService(new PersistentUrlRoleMapper(resourcesRepository));
         mappings = das.getUrlRoleMappings()
                       .entrySet()
                       .stream()
@@ -68,7 +71,7 @@ public class CustomDynamicAuthorizationManager implements AuthorizationManager<R
                         new RequestAuthorizationContext(request.getRequest(), matchResult.getVariables()));
             }
         }
-        return DENY;
+        return ACCESS;
     }
 
     @Override

@@ -47,6 +47,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
             role = Role.builder()
                     .roleName(roleName)
                     .roleDesc(roleDesc)
+                    .isExpression("N")
                     .build();
         }
         return roleRepository.save(role);
@@ -58,6 +59,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         if (account == null) {
             account = Account.builder()
                     .username(userName)
+                    .age(10)
                     .password(passwordEncoder.encode(password))
                     .userRoles(roleSet)
                     .build();
