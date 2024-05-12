@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.FilterChainProxy;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final FilterChainProxy filterChainProxy;
 
     @Override
     @Transactional
@@ -29,8 +31,14 @@ public class SetupDataLoader implements ApplicationListener<ContextRefreshedEven
         if (alreadySetup) {
             return;
         }
+        disableAuthorizationFilter();
         setupData();
         alreadySetup = true;
+    }
+
+    private void disableAuthorizationFilter() {
+        filterChainProxy.getFilterChains()
+                .forEach(sfc -> sfc.getFilters().remove(sfc.getFilters().size() - 1));
     }
 
     private void setupData() {
